@@ -10,7 +10,7 @@ contract TestAdoption {
   function testUserCanAdoptPet() public {
     uint returnedId = adoption.adopt(8);
     uint expected = 8;
-    Assert.equal(returnedId, expected, "Adoption of pet ID 8 should be recorded.");
+    Assert.equal(returnedId, expected, "adopt() should return the adopted pet ID 8.");
   }
     // Testing retrieval of a single pet's owner
    function testGetAdopterAddressByPetId() public {
@@ -28,5 +28,11 @@ contract TestAdoption {
     address[16] memory adopters = adoption.getAdopters();
 
     Assert.equal(adopters[8], expected, "Owner of pet ID 8 should be recorded.");
+    Assert.equal(adopters[0], address(0), "Pet ID 0 was never adopted and should have no owner.");
+  }
+  // Testing that pet IDs outside 0-15 are rejected
+  function testAdoptRejectsOutOfRangePetId() public {
+    bool succeeded = address(adoption).call(bytes4(keccak256("adopt(uint256)")), uint(16));
+    Assert.isFalse(succeeded, "Adopting pet ID 16 should revert.");
   }
 }
